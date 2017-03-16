@@ -27,6 +27,12 @@ public class GithubQuerier {
             JSONObject event = response.get(i);
             // Get event type
             String type = event.getString("type");
+            JSONObject payload = event.getJSONObject("payload");
+            int sizes = payload.getInt("size");
+            JSONArray commits = payload.getJSONArray("commits");
+            String sha;
+            String message;
+
             // Get created_at date, and format it in a more pleasant style
             String creationDate = event.getString("created_at");
             SimpleDateFormat inFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
@@ -42,6 +48,18 @@ public class GithubQuerier {
             sb.append(" on ");
             sb.append(formatted);
             sb.append("<br />");
+
+            for(int kk = 0; kk < sizes; kk++)
+            {
+                JSONObject commit = commits.getJSONObject(kk);
+                sha = commit.getString("sha");
+                message = commit.getString("message");
+                sb.append(sha + "&#9;");
+                sb.append(" <h4> ");
+                sb.append(message);
+                sb.append(" </h4> ");
+                sb.append("<br />");
+            }
             // Add collapsible JSON textbox (don't worry about this for the homework; it's just a nice CSS thing I like)
             sb.append("<a data-toggle=\"collapse\" href=\"#event-" + i + "\">JSON</a>");
             sb.append("<div id=event-" + i + " class=\"collapse\" style=\"height: auto;\"> <pre>");
@@ -59,8 +77,14 @@ public class GithubQuerier {
         JSONObject json = Util.queryAPI(new URL(url));
         System.out.println(json);
         JSONArray events = json.getJSONArray("root");
-        for (int i = 0; i < events.length() && i < 10; i++) {
-            eventList.add(events.getJSONObject(i));
+        int j = 0;
+        for (int i = 0; i < events.length() && j < 10; i++) {
+            String type = events.getJSONObject(i).getString("type");
+            //System.out.println(type);
+            if (type.equals( "PushEvent")) {
+                eventList.add(events.getJSONObject(i));
+                j++;
+            }
         }
         return eventList;
     }
