@@ -1,0 +1,37 @@
+Changjun Lei
+Omer Khaliq
+We created swap1.sh
+we edidted docker-compose.yml, githubquirier, and the required fixes for the tarball files
+
+Instructions to test
+run ./cleanup.sh
+build images if they arent built using:
+    build -t [ImageTag] .
+run ./dorun.sh
+use docker-machine ip to find ip of the virtual machine
+enter ip:8888 to test results of dorun(we can confirm port 8888 in docker ps -a)
+this should display the old activity shich shows all events and does not display commits and their respective SHA's
+now we test the swap
+first we test swap 2
+start by removing the activityold
+docker rm -f [SHA] (find the SHA from docker ps -a for activityold)
+we need to run activity on our network
+we find the network name using docker network ls
+we name the new activity as web2
+using the following command to run that activity on the network
+docker run -d -P --net ecs189_default --name web2 activity
+we want to swap web2 in by using swap2 as in the following:
+docker exec ecs189_proxy_1 /bin/bash /bin/swap2.sh
+wait for 50 seconds then refresh the page
+this should be our new activity page which only displays pushevents and shows commits with their SHA
+now we want to test the reverse with swap 1
+remove activity
+docker rm -f [SHA] (find the SHA from docker ps -a for activity)
+run activityold as web1
+docker run -d -P --net ecs189_default --name web1 activityold
+execute swap1
+docker exec ecs189_proxy_1 /bin/bash /bin/swap1.sh
+wait and refresh page
+the original page should display
+
+
